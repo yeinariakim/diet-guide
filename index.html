@@ -27,6 +27,7 @@
   --border: #EBEBEB;
   --nav-h: 64px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
 }
 
 html, body {
@@ -57,7 +58,7 @@ html, body {
 
 /* ── 페이지 헤더 ── */
 .page-header {
-  padding: 20px 20px 12px;
+  padding: calc(var(--safe-top) + 20px) 20px 12px;
   background: var(--bg);
   position: sticky;
   top: 0;
