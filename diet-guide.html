@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="식단 가이드">
+<title>식단 가이드</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --green: #2E6B4F;
+  --green-2: #3D8A65;
+  --green-bg: #EDF6F1;
+  --orange: #E05A2B;
+  --orange-bg: #FEF0EB;
+  --yellow: #C47D00;
+  --yellow-bg: #FEF8E7;
+  --bg: #F5F5F3;
+  --surface: #FFFFFF;
+  --text-1: #18181B;
+  --text-2: #6B6B6B;
+  --text-3: #A8A8A8;
+  --border: #EBEBEB;
+  --nav-h: 64px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text-1);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── 레이아웃 ── */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.page-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+}
+
+/* ── 페이지 헤더 ── */
+.page-header {
+  padding: 20px 20px 12px;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.page-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.5px;
+}
+
+/* ── 바텀 탭바 ── */
+.tab-bar {
+  display: flex;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  height: calc(var(--nav-h) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  padding-top: 8px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  -webkit-appearance: none;
+}
+.tab-icon {
+  font-size: 22px;
+  line-height: 1;
+  filter: grayscale(1) opacity(0.4);
+  transition: filter 0.15s;
+}
+.tab-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-3);
+  transition: color 0.15s;
+}
+.tab-item.active .tab-icon { filter: none; }
+.tab-item.active .tab-label { color: var(--green); }
+
+/* ── 탭 섹션 ── */
+.tab-section { display: none; }
+.tab-section.active { display: block; }
+
+/* ── 컨텐츠 카드 ── */
+.section { padding: 0 16px 8px; }
+.section + .section { padding-top: 4px; }
+
+.card {
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.card-header {
+  padding: 16px 18px 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-3);
+  letter-spacing: 0.3px;
+  text-transform: none;
+}
+
+/* ── 스케줄 행 ── */
+.schedule-item {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.schedule-item:last-child { border-bottom: none; }
+.schedule-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.schedule-flow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pill {
+  background: var(--green);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pill-ghost {
+  background: var(--green-bg);
+  color: var(--green);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.arrow-icon { color: var(--text-3); font-size: 12px; }
+.schedule-note {
+  font-size: 13px;
+  color: var(--text-2);
+  margin-top: 6px;
+}
+
+/* ── 공지/메모 박스 ── */
+.notice {
+  margin: 0 16px 10px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.notice-warn {
+  background: var(--orange-bg);
+  color: #7A2E15;
+}
+.notice-tip {
+  background: var(--yellow-bg);
+  color: #6B4600;
+}
+.notice-green {
+  background: var(--green-bg);
+  color: #1A4030;
+}
+.notice-icon { font-size: 15px; margin-right: 4px; }
+
+/* ── 원칙 리스트 ── */
+.principle-item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.principle-item:last-child { border-bottom: none; }
+.principle-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--green-bg);
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.principle-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.principle-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+
+/* ── 식사 예시 ── */
+.meal-item {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.meal-item:last-child { border-bottom: none; }
+.meal-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.meal-desc { font-size: 13px; color: var(--text-2); line-height: 1.5; }
+.meal-link { font-size: 12px; color: var(--green); margin-top: 4px; }
+
+/* ── 서브 탭 (식단) ── */
+.sub-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 16px 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.sub-tabs::-webkit-scrollbar { display: none; }
+.sub-tab {
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  background: var(--surface);
+  color: var(--text-2);
+  transition: background 0.15s, color 0.15s;
+}
+.sub-tab.active {
+  background: var(--green);
+  color: white;
+}
+.subtab-section { display: none; }
+.subtab-section.active { display: block; }
+
+/* ── 식품 목록 아코디언 ── */
+.food-group {
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 0 16px 8px;
+}
+.food-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text-1);
+}
+.fg-arrow {
+  font-size: 12px;
+  color: var(--text-3);
+  transition: transform 0.2s;
+}
+.fg-arrow.open { transform: rotate(180deg); }
+.food-group-body { display: none; border-top: 1px solid var(--border); }
+.food-group-body.open { display: block; }
+
+.food-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  margin: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.food-col {
+  padding: 10px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+}
+.food-col-g { background: var(--green-bg); }
+.food-col-y { background: var(--yellow-bg); }
+.food-col-r { background: var(--orange-bg); }
+.food-col-label {
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+.fcl-g { color: var(--green); }
+.fcl-y { color: var(--yellow); }
+.fcl-r { color: var(--orange); }
+.food-tip {
+  padding: 10px 12px 14px;
+  font-size: 12.5px;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+/* ── 레시피 ── */
+.recipe-card {
+  background: var(--surface);
+  border-radius: 14px;
+  margin: 0 16px 10px;
+  overflow: hidden;
+}
+.recipe-card-title {
+  padding: 16px 18px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+.ingr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  margin: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.ingr-item {
+  background: var(--surface);
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.ingr-label { color: var(--text-3); font-size: 11px; margin-bottom: 2px; }
+.ingr-val { font-weight: 500; color: var(--text-1); }
+.recipe-step {
+  display: flex;
+  gap: 12px;
+  padding: 10px 18px;
+  border-top: 1px solid var(--border);
+  align-items: flex-start;
+}
+.recipe-step:first-of-type { border-top: none; }
+.rnum {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--green-bg);
+  color: var(--green);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.rstep-text { font-size: 14px; color: var(--text-1); line-height: 1.5; }
+.rstep-text strong { font-weight: 600; }
+.recipe-section-label {
+  padding: 12px 18px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--green);
+}
+
+/* ── 기타 섹션 ── */
+.etc-group {
+  background: var(--surface);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 0 16px 8px;
+}
+.etc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  background: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text-1);
+}
+.etc-body { display: none; border-top: 1px solid var(--border); }
+.etc-body.open { display: block; }
+
+/* ── 부작용 아코디언 ── */
+.sx-item {
+  border-top: 1px solid var(--border);
+}
+.sx-item:first-child { border-top: none; }
+.sx-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-1);
+  background: none;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  text-align: left;
+}
+.sx-body {
+  display: none;
+  padding: 4px 18px 14px;
+  font-size: 13.5px;
+  color: var(--text-2);
+  line-height: 1.65;
+}
+.sx-body.open { display: block; }
+.sx-body strong { color: var(--text-1); font-weight: 600; }
+
+/* ── 음주 ── */
+.drink-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  margin: 12px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.drink-col {
+  padding: 12px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+.drink-col-y { background: var(--yellow-bg); }
+.drink-col-r { background: var(--orange-bg); }
+.drink-col-label {
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--yellow);
+}
+.drink-col-r .drink-col-label { color: var(--orange); }
+.drink-col-items { color: var(--text-2); }
+
+/* ── 간식 ── */
+.snack-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.snack-item:last-child { border-bottom: none; }
+.snack-icon { font-size: 28px; flex-shrink: 0; }
+.snack-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.snack-desc { font-size: 13px; color: var(--text-2); line-height: 1.4; }
+.snack-tag {
+  margin-left: auto;
+  background: var(--green-bg);
+  color: var(--green);
+  padding: 3px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+ul.plain { padding-left: 18px; }
+ul.plain li { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 5px; }
+ul.plain li strong { color: var(--text-1); }
+</style>
+</head>
+<body>
+<div class="app">
+<div class="page-area" id="scroll-area">
+
+<!-- ═══════════════════════════════
+     탭 1: 스케줄
+═══════════════════════════════ -->
+<div class="tab-section active" id="tab-schedule">
+  <div class="page-header">
+    <div class="page-title">하루 스케줄</div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <div class="card-header">식사 순서</div>
+      <div class="schedule-item">
+        <div class="schedule-time">아침</div>
+        <div class="schedule-flow">
+          <span class="pill">공복 다이어트약</span>
+          <span class="arrow-icon">›</span>
+          <span class="pill-ghost">10분 이내</span>
+          <span class="arrow-icon">›</span>
+          <span class="pill">간단한 식사</span>
+        </div>
+        <div class="schedule-note">지방·염분·섬유질 위주 · 뿌리채소·과일·우유 ✗</div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">점심</div>
+        <div class="schedule-flow">
+          <span class="pill">공복 다이어트약</span>
+          <span class="arrow-icon">›</span>
+          <span class="pill-ghost">30~60분 이내</span>
+          <span class="arrow-icon">›</span>
+          <span class="pill">당질제한 식사</span>
+        </div>
+      </div>
+      <div class="schedule-item">
+        <div class="schedule-time">저녁</div>
+        <div class="schedule-flow">
+          <span class="pill">공복 다이어트약</span>
+          <span class="arrow-icon">›</span>
+          <span class="pill-ghost">원하는 시간</span>
+          <span class="arrow-icon">›</span>
+          <span class="pill">당질제한 식사</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice notice-warn">
+    <span class="notice-icon">⚠️</span> 저녁은 취침 4시간 전 식사 완료 · 양약은 식사 직후 또는 1시간 이후
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <div class="card-header">핵심 원칙</div>
+      <div class="principle-item">
+        <div class="principle-num">1</div>
+        <div>
+          <div class="principle-title">당질 낮고 단백질·지방 풍부하게</div>
+          <div class="principle-desc">칼로리 계산보다 뭘 먹느냐가 핵심. 동물성·자연식품 기본.</div>
+        </div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">2</div>
+        <div>
+          <div class="principle-title">수분·염분 충분히</div>
+          <div class="principle-desc">하루 체중(kg) × 30ml. 나트륨 배출 증가하니 소금 적극 섭취.</div>
+        </div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">3</div>
+        <div>
+          <div class="principle-title">숙면</div>
+          <div class="principle-desc">7~8시간 · 아침 햇빛 · 침실 어둡고 서늘하게.</div>
+        </div>
+      </div>
+      <div class="principle-item">
+        <div class="principle-num">4</div>
+        <div>
+          <div class="principle-title">가벼운 운동만</div>
+          <div class="principle-desc">30~60분 이내 유산소 OK · 과도한 운동·노동 삼가기.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <div class="card-header">아침 식사 예시</div>
+      <div class="meal-item">
+        <div class="meal-name">방탄커피</div>
+        <div class="meal-desc">블랙커피 + 포션버터 2~3개(20~30g) + MCT오일 10~15cc · 거품기로 충분히 섞기</div>
+        <div class="meal-link">레시피 → 식단 탭</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-name">사골육수</div>
+        <div class="meal-desc">사골육수 + MCT오일 15cc + 소금 2~3g · 배추·청경채·숙주·팽이버섯 가능 (고기 ✗)</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-name">계란후라이 + 낫또</div>
+        <div class="meal-desc">버터에 구운 계란후라이 1개 + 낫또 1개 + MCT오일 15cc + 간장 or 소금</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-name">닥터키니 스무디</div>
+        <div class="meal-desc">물 + 냉동 아보카도 + 파이브베리 + 견과류 + 스테비아·치아씨드·차전자피 + 오일류</div>
+        <div class="meal-link">레시피 → 식단 탭</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="card">
+      <div class="card-header">점심·저녁 식사 예시</div>
+      <div class="meal-item">
+        <div class="meal-name">삼겹살 + 쌈</div>
+        <div class="meal-desc">쌈채소 + 버섯 · ✅ 소금·재래식 된장 · ❌ 쌈장·고추장·양념간장</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-name">국물요리 (밥 NO)</div>
+        <div class="meal-desc">돼지국밥·설렁탕·추어탕·샤브샤브 · 소금 넉넉히 · 깍두기·겉절이 ✗</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-name">생크림 연어스테이크</div>
+        <div class="meal-desc">연어 + 버터·양파·마늘·생크림·파르미지아노치즈 소스</div>
+        <div class="meal-link">레시피 → 식단 탭</div>
+      </div>
+      <div class="meal-item">
+        <div class="meal-name">야채샐러드 + 단백질</div>
+        <div class="meal-desc">계란 2~3개 or 닭다리살 · 드레싱: MCT오일+올리브오일+발사믹식초 각 15ml</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     탭 2: 식단
+═══════════════════════════════ -->
+<div class="tab-section" id="tab-diet">
+  <div class="page-header">
+    <div class="page-title">식단</div>
+  </div>
+  <div class="sub-tabs">
+    <button class="sub-tab active" onclick="showSub('food')">식품 목록</button>
+    <button class="sub-tab" onclick="showSub('snack')">간식</button>
+    <button class="sub-tab" onclick="showSub('recipe')">레시피</button>
+  </div>
+
+  <!-- 식품 목록 -->
+  <div class="subtab-section active" id="sub-food">
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🥩 육류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>돼지·닭·오리·소·양고기<br>곱창·막창·대창·간·허파<br>사골·닭발 뼈육수</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>햄·베이컨·소시지·콘비프<br>(성분 확인)</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>돼지갈비양념·LA갈비·제육볶음·닭갈비<br>치킨너겟·돈까스·탕수육·갈비찜<br>시판 인스턴트 육수·곰탕</div>
+        </div>
+        <div class="food-tip">💡 삼겹살·항정살·차돌박이 등 <strong>지방 풍부 부위 적극 섭취.</strong> 외식 시 반드시 양념 안 된 생고기 선택.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🐟 어패류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>고등어·연어·정어리·삼치<br>대구·광어·명태·갈치<br>새우·게·오징어·낙지·조개·굴</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>올리브유/물 담긴 참치캔<br>새우젓·액젓<br>훈제연어·황태채</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>고추참치·짜장참치<br>대부분 어묵·가공품<br>쥐포·양념 오징어채<br>명란젓·창란젓<br>생선가스·새우튀김·초밥</div>
+        </div>
+        <div class="food-tip">💡 히스타민 주의 — 신선한 것, 해동 후 재냉동 피하기.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🥚 계란류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>달걀·메추리알·오리알<br>금지 없음</div>
+          <div class="food-col food-col-y" style="opacity:0.5;"><div class="food-col-label fcl-y">해당 없음</div></div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">⚠️ 주의</div>가공 계란 제품<br>설탕·첨가물 확인</div>
+        </div>
+        <div class="food-tip">💡 노른자 포함 전란 OK. 콜레스테롤 걱정 안 해도 됨. 조리 시 기버터(Ghee) 권장.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🧈 유제품 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>Ghee(정제버터)<br>앵커·루어팍·에쉬레·고메버터<br>동물성 생크림·사워크림</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>체다·브리·에멘탈·페타 등 자연치즈 (덩어리형)<br>무가당 그릭요거트</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>슬라이스·큐브 치즈<br>불가리스·액티비아 등 요구르트<br>우유·저지방우유<br>카페라떼·믹스커피</div>
+        </div>
+        <div class="food-tip">💡 Ghee는 유제품 민감해도 OK.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🥦 채소류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>상추·시금치·치커리·로메인·청경채·배추·깻잎<br>브로콜리·콜리플라워·케일·양배추<br>오이·피망·파프리카·가지·애호박·숙주·콩나물</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>마늘·생강·양파·대파·고추 (소량)</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>감자·고구마·연근·당근·단호박<br>당면·감자전분<br>설탕·매실청 장아찌류</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🥜 견과류·씨앗류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>마카다미아<br>피칸<br>브라질넛 (하루 1~2알)</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>호두·잣·헤이즐넛<br>아마씨·치아씨드<br>블랜치드 아몬드</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>캐슈넛·피스타치오<br>아몬드(겉껍질째)<br>땅콩·해바라기씨</div>
+        </div>
+        <div class="food-tip">💡 하루 <strong>20~30g</strong> 이내. 건크랜베리 섞인 믹스너트 주의.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🫙 유지류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>Ghee·라드·타로우<br>아보카도오일(정제)·코코넛오일<br>엑스트라버진 올리브오일<br>생들기름·MCT오일</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>일반버터·참기름</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>콩기름·옥수수유·카놀라유<br>포도씨유·해바라기씨유<br>마가린·쇼트닝</div>
+        </div>
+        <div class="food-tip">💡 고온 조리엔 Ghee·라드·코코넛오일. MCT오일은 처음엔 1~2스푼부터.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🧂 조미료·소스류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>천일염·히말라야 핑크솔트<br>전통 된장·양조간장·조선간장<br>유기농 사과식초·무가당 발사믹<br>고춧가루·후추·강황 등 향신료</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>아보카도유 기반 키토 마요네즈<br>스테비아·나한과·알룰로스<br>와사비·홀그레인 머스타드</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>고추장·쌈장·케첩·굴소스<br>데리야키·허니머스타드<br>백설탕·꿀·메이플시럽·올리고당<br>아스파탐·수크랄로스</div>
+        </div>
+        <div class="food-tip">💡 <strong>소금 충분히 섭취가 매우 중요!</strong></div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🥤 음료류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>생수·무가당 탄산수<br>보리차·허브티<br>사골육수·뼈육수</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>블랙커피·방탄커피<br>녹차·홍차·결명·동굴레차<br>레몬수·코코넛밀크</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>콜라·사이다·과일주스<br>우유·카페라떼·믹스커피<br>에너지드링크·매실청·레몬청<br>제로콜라·다이어트 탄산수</div>
+        </div>
+        <div class="food-tip">💡 하루 <strong>체중(kg) × 30ml.</strong> 커피 1~2잔. '무설탕'도 인공감미료 인슐린 반응 유발 가능.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🍓 과일류 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col food-col-g"><div class="food-col-label fcl-g">✅ 추천</div>아보카도</div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>라즈베리·블랙베리·딸기·블루베리 (하루 종이컵 반 컵)<br>레몬·라임·자몽 (드레싱용)</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>바나나·망고·파인애플<br>포도·감·수박·멜론·사과<br>건포도·무화과·말린 과일<br>과일주스·스무디류</div>
+        </div>
+        <div class="food-tip">💡 말린 과일·주스는 당이 고도로 농축 — 집중 감량기에 가장 위험한 것 중 하나.</div>
+      </div>
+    </div>
+
+    <div class="food-group">
+      <button class="food-group-header" onclick="toggleFg(this)">🌾 곡물·콩·감자·가공간식 <span class="fg-arrow">▾</span></button>
+      <div class="food-group-body">
+        <div class="food-cols">
+          <div class="food-col" style="background:#f9f9f9; opacity:0.5;"><div class="food-col-label">추천 없음</div></div>
+          <div class="food-col food-col-y"><div class="food-col-label fcl-y">⚠️ 조건</div>낫또·된장·청국장·두부<br>코코넛가루·아몬드가루·키토브레드<br>곤약감자<br>다크초콜릿 (카카오 85%↑)</div>
+          <div class="food-col food-col-r"><div class="food-col-label fcl-r">❌ 금지</div>쌀·밀·옥수수·보리·귀리·퀴노아<br>빵·면·떡·밥·죽·과자·시리얼<br>감자·고구마·당근·연근·비트<br>두유·볶은콩<br>아이스크림·케이크·사탕</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 간식 -->
+  <div class="subtab-section" id="sub-snack">
+    <div class="card" style="margin: 0 16px 10px;">
+      <div class="card-header">바로 먹어도 되는 것들</div>
+      <div class="snack-item">
+        <div class="snack-icon">🥚</div>
+        <div>
+          <div class="snack-title">삶은 달걀</div>
+          <div class="snack-desc">편의점 어디서든. 소금 살짝.</div>
+        </div>
+        <div class="snack-tag">1순위</div>
+      </div>
+      <div class="snack-item">
+        <div class="snack-icon">🥑</div>
+        <div>
+          <div class="snack-title">아보카도</div>
+          <div class="snack-desc">좋은 지방 + 포만감.</div>
+        </div>
+      </div>
+      <div class="snack-item">
+        <div class="snack-icon">🥜</div>
+        <div>
+          <div class="snack-title">마카다미아 단품</div>
+          <div class="snack-desc">하루 20~30g 이내. 캐슈넛·건크랜베리 섞인 혼합 견과류 ✗</div>
+        </div>
+      </div>
+      <div class="snack-item">
+        <div class="snack-icon">🧀</div>
+        <div>
+          <div class="snack-title">크림치즈 소량</div>
+          <div class="snack-desc">자연치즈 성분 확인 후. 마카다미아랑 같이 먹으면 포만감 굿.</div>
+        </div>
+      </div>
+      <div class="snack-item">
+        <div class="snack-icon">🍫</div>
+        <div>
+          <div class="snack-title">다크초콜릿</div>
+          <div class="snack-desc">카카오 85% 이상. 린트 90% 한두 조각. GS·CU 다 있음.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin: 0 16px 10px;">
+      <div class="card-header">공복감 심할 때</div>
+      <div class="snack-item">
+        <div class="snack-icon">☕</div>
+        <div>
+          <div class="snack-title">방탄커피</div>
+          <div class="snack-desc">블랙커피 + 버터 + MCT오일 · 하루 1잔 제한</div>
+        </div>
+      </div>
+      <div class="snack-item">
+        <div class="snack-icon">🌿</div>
+        <div>
+          <div class="snack-title">허브티 + MCT오일</div>
+          <div class="snack-desc">커피 못 마실 때 대안. 페퍼민트·카모마일·루이보스 무가당.</div>
+        </div>
+      </div>
+    </div>
+    <div class="notice notice-warn">
+      <strong>편의점 실수 주의</strong><br>
+      혼합견과류(캐슈넛·건크랜베리) ✗ · 불가리스·액티비아 ✗ · 단백질바(대부분 설탕) ✗ · 제로음료·다이어트 탄산수 ✗ · 허니머스타드·랜치 드레싱 ✗
+    </div>
+  </div>
+
+  <!-- 레시피 -->
+  <div class="subtab-section" id="sub-recipe">
+
+    <div class="recipe-card">
+      <div class="recipe-card-title">☕ 방탄커피</div>
+      <div class="ingr-grid" style="margin: 12px;">
+        <div class="ingr-item"><div class="ingr-label">블랙커피</div><div class="ingr-val">진하게 내린 것</div></div>
+        <div class="ingr-item"><div class="ingr-label">버터</div><div class="ingr-val">15~30g (포션 2~3개)</div></div>
+        <div class="ingr-item"><div class="ingr-label">MCT오일</div><div class="ingr-val">10~15ml</div></div>
+        <div class="ingr-item"><div class="ingr-label">선택</div><div class="ingr-val">소금 약간 or 가염버터</div></div>
+      </div>
+      <div class="recipe-step"><div class="rnum">1</div><div class="rstep-text">진하게 내린 블랙커피 준비</div></div>
+      <div class="recipe-step"><div class="rnum">2</div><div class="rstep-text">버터 + MCT오일 넣기</div></div>
+      <div class="recipe-step"><div class="rnum">3</div><div class="rstep-text"><strong>거품기나 믹서로 충분히 섞기</strong></div></div>
+      <div style="padding: 10px 18px 14px; font-size: 13px; color: var(--text-2);">💡 소금 약간 추가하면 카페인 이뇨 작용 완화 + 풍미 향상</div>
+    </div>
+
+    <div class="recipe-card">
+      <div class="recipe-card-title">🥤 닥터키니 스무디</div>
+      <div class="ingr-grid" style="margin: 12px;">
+        <div class="ingr-item"><div class="ingr-label">물</div><div class="ingr-val">250ml</div></div>
+        <div class="ingr-item"><div class="ingr-label">냉동 아보카도</div><div class="ingr-val">50~70g</div></div>
+        <div class="ingr-item"><div class="ingr-label">냉동 파이브베리</div><div class="ingr-val">40~50g</div></div>
+        <div class="ingr-item"><div class="ingr-label">견과류</div><div class="ingr-val">20~30g</div></div>
+        <div class="ingr-item"><div class="ingr-label">스테비아·치아씨드·차전자피</div><div class="ingr-val">각 5cc</div></div>
+        <div class="ingr-item"><div class="ingr-label">MCT오일 + 올리브오일</div><div class="ingr-val">각 15cc</div></div>
+      </div>
+      <div class="recipe-step"><div class="rnum">1</div><div class="rstep-text"><strong>물 250ml</strong> 먼저 (차가운 게 부담되면 200ml + 뜨거운 물 50ml)</div></div>
+      <div class="recipe-step"><div class="rnum">2</div><div class="rstep-text">냉동 아보카도 + 냉동 파이브베리 넣기</div></div>
+      <div class="recipe-step"><div class="rnum">3</div><div class="rstep-text">견과류 20~30g 넣기</div></div>
+      <div class="recipe-step"><div class="rnum">4</div><div class="rstep-text"><strong>스테비아 → 치아씨드 → 차전자피</strong> 순서대로</div></div>
+      <div class="recipe-step"><div class="rnum">5</div><div class="rstep-text">파우더 다 넣은 후 <strong>MCT오일 + 올리브오일</strong> 마지막에 (MCT오일 복통 시 절반)</div></div>
+      <div class="recipe-step"><div class="rnum">6</div><div class="rstep-text">믹서기 <strong>30초 이내</strong></div></div>
+      <div class="recipe-step"><div class="rnum">7</div><div class="rstep-text"><strong>바로 마시기</strong> (시간 지나면 굳어짐)</div></div>
+      <div style="padding: 10px 18px 14px; font-size: 13px; color: var(--text-2);">💡 치아씨드는 전날 밤 물 50cc에 담가 냉장 → 다음날 불어난 젤 전체 넣기. 소화 UP!<br>💡 마신 후 물 한 잔 + 멀티비타민 + 비타민 D3+K2 함께</div>
+    </div>
+
+    <div class="recipe-card">
+      <div class="recipe-card-title">🐟 생크림 연어스테이크 (2인분)</div>
+      <div class="ingr-grid" style="margin: 12px;">
+        <div class="ingr-item"><div class="ingr-label">연어</div><div class="ingr-val">300g</div></div>
+        <div class="ingr-item"><div class="ingr-label">생크림</div><div class="ingr-val">200ml</div></div>
+        <div class="ingr-item"><div class="ingr-label">버터</div><div class="ingr-val">20g</div></div>
+        <div class="ingr-item"><div class="ingr-label">파르미지아노치즈</div><div class="ingr-val">20g</div></div>
+        <div class="ingr-item"><div class="ingr-label">레몬·양파·마늘</div><div class="ingr-val">1개·1/2개·4알</div></div>
+        <div class="ingr-item"><div class="ingr-label">대하·시금치·화이트와인</div><div class="ingr-val">선택</div></div>
+      </div>
+      <div class="recipe-section-label">① 연어 손질</div>
+      <div class="recipe-step"><div class="rnum">1</div><div class="rstep-text">키친타월로 겉면 물기 제거</div></div>
+      <div class="recipe-step"><div class="rnum">2</div><div class="rstep-text">4등분 → 소금 한 꼬집 + 후추 + 레몬즙 앞뒤로</div></div>
+      <div class="recipe-step"><div class="rnum">3</div><div class="rstep-text"><strong>20분 재워두기</strong></div></div>
+      <div class="recipe-section-label">② 연어 굽기</div>
+      <div class="recipe-step"><div class="rnum">1</div><div class="rstep-text">프라이팬 예열 후 올리브오일 두르기</div></div>
+      <div class="recipe-step"><div class="rnum">2</div><div class="rstep-text"><strong>중불로 앞뒤 각 2분씩</strong> (반쯤 익으면 뒤집기)</div></div>
+      <div class="recipe-section-label">③ 소스 만들기</div>
+      <div class="recipe-step"><div class="rnum">1</div><div class="rstep-text">버터 녹이기 → 양파 + 다진 마늘 2분간 볶기</div></div>
+      <div class="recipe-step"><div class="rnum">2</div><div class="rstep-text">화이트 와인 넣기 (없어도 OK)</div></div>
+      <div class="recipe-step"><div class="rnum">3</div><div class="rstep-text"><strong>생크림 200ml + 치즈 20g</strong> 넣고 젓기</div></div>
+      <div class="recipe-step"><div class="rnum">4</div><div class="rstep-text">소금·후추 간 → 시금치 넣고 숨 죽으면 레몬 넣기</div></div>
+      <div class="recipe-step"><div class="rnum">5</div><div class="rstep-text">구워둔 연어를 소스 위에 올리기</div></div>
+      <div style="padding: 10px 18px 14px; font-size: 13px; color: var(--text-2);">💡 맛의 키포인트는 레몬과 생크림!</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     탭 3: 기타
+═══════════════════════════════ -->
+<div class="tab-section" id="tab-etc">
+  <div class="page-header">
+    <div class="page-title">기타</div>
+  </div>
+
+  <div class="etc-group">
+    <button class="etc-header" onclick="toggleEtc(this)">🔄 하루 디톡스 <span class="fg-arrow">▾</span></button>
+    <div class="etc-body">
+      <div style="padding: 14px 18px;">
+        <div style="font-size: 14px; color: var(--text-2); margin-bottom: 14px; line-height: 1.6;">정체기 리셋 or 유지기 주 1~2회. 방탄커피 + 사골육수만으로 하루 보내기.</div>
+        <div class="notice notice-tip" style="margin: 0 0 12px;">💡 시작 전날 저녁 8시 이후부터 생수·탄산수·허브티 외 섭취 금지</div>
+        <div class="schedule-item" style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+          <div class="schedule-time">아침</div>
+          <div class="schedule-flow"><span class="pill" style="background:var(--text-2);">디톡스</span><span class="arrow-icon">›</span><span class="pill-ghost" style="background:var(--bg);">10분 이내</span><span class="arrow-icon">›</span><span class="pill" style="background:var(--text-2);">방탄커피</span></div>
+        </div>
+        <div class="schedule-item" style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+          <div class="schedule-time">점심</div>
+          <div class="schedule-flow"><span class="pill" style="background:var(--text-2);">디톡스</span><span class="arrow-icon">›</span><span class="pill-ghost" style="background:var(--bg);">10분 이내</span><span class="arrow-icon">›</span><span class="pill" style="background:var(--text-2);">사골육수</span></div>
+        </div>
+        <div class="schedule-item" style="padding: 12px 0;">
+          <div class="schedule-time">저녁</div>
+          <div class="schedule-flow"><span class="pill" style="background:var(--text-2);">디톡스</span><span class="arrow-icon">›</span><span class="pill-ghost" style="background:var(--bg);">원하는 시간</span><span class="arrow-icon">›</span><span class="pill" style="background:var(--text-2);">사골육수</span></div>
+        </div>
+        <div class="notice notice-warn" style="margin: 12px 0 0;">⚠️ 아침에 방탄커피 마셨다면 점심엔 반드시 사골육수 (커피 하루 1잔). 뼈육수엔 <strong>고기 넣지 않음!</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="etc-group">
+    <button class="etc-header" onclick="toggleEtc(this)">⚕️ 부작용 대처 <span class="fg-arrow">▾</span></button>
+    <div class="etc-body">
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">😋 식욕 조절이 잘 안돼요 <span class="fg-arrow">▾</span></button><div class="sx-body">생리 전후·스트레스·수면 부족 등으로 일시적 증가.<br><strong>대처:</strong> 단백질·채소 위주로 식사 조절. 지속 시 한의원 연락.</div></div>
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">😵 앉았다 일어서면 어지러워요 <span class="fg-arrow">▾</span></button><div class="sx-body">비타민·미네랄 부족이나 전해질 균형 변화.<br><strong>대처:</strong> 식사량 조금 늘리기 + 고용량 종합비타민 + <strong>소금·마그네슘</strong> 섭취.</div></div>
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">🤕 두통·뒷목·어깨가 당겨요 <span class="fg-arrow">▾</span></button><div class="sx-body">목·어깨 근육 긴장이나 위장 기능 저하.<br><strong>대처:</strong> 온찜질·스트레칭. 심하면 침 치료나 추가 처방 상담.</div></div>
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">😤 밤에 잠이 안 와요 <span class="fg-arrow">▾</span></button><div class="sx-body"><strong>대부분 1주일 후 자연스럽게 사라져요.</strong><br><strong>대처:</strong> 저녁 약 취침 6시간 전 복용. 그래도 방해되면 30~60분 앞당기거나 복용량 반 알 줄이기.</div></div>
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">💓 손 떨림·두근거림 <span class="fg-arrow">▾</span></button><div class="sx-body">신진대사 촉진으로 교감신경 활성화. <strong>며칠 내로 사라져요.</strong><br>많이 불편하면 한의원 연락해서 복용량 조절 문의.</div></div>
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">🔴 생리가 불규칙해요 <span class="fg-arrow">▾</span></button><div class="sx-body">체지방 감소와 대사 활성화로 호르몬 균형에 일시적 변화. 자연스러운 현상.<br>자궁내막증·자궁근종 등 기존 질환이 있으면 의료진 상담.</div></div>
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">🚽 변비가 생겼어요 <span class="fg-arrow">▾</span></button><div class="sx-body"><strong>대처:</strong> 유산균 꾸준히 + 채소·해조류 늘리기 + 발효식품(그릭요거트·낫또) + 올리브오일·MCT오일 충분히.<br><strong>3일 이상이면 비움환 복용.</strong></div></div>
+      <div class="sx-item"><button class="sx-header" onclick="toggleSx(this)">⚖️ 정체기가 왔어요 <span class="fg-arrow">▾</span></button><div class="sx-body">몸이 다이어트에 적응하며 신진대사율 낮추는 자연스러운 현상.<br><strong>한의원에 연락!</strong> 처방 조정 + 식사 간격·영양소 변화 + 운동 강도 조절. 또는 <strong>하루 디톡스</strong>로 리셋.</div></div>
+    </div>
+  </div>
+
+  <div class="etc-group">
+    <button class="etc-header" onclick="toggleEtc(this)">🍶 음주 가이드 <span class="fg-arrow">▾</span></button>
+    <div class="etc-body">
+      <div class="notice notice-warn" style="margin: 14px 14px 12px;">⚠️ 알코올은 지방 연소를 강제로 중단. 한약 복용 중 음주는 한의원에 먼저 여쭤보기!</div>
+      <div class="drink-cols">
+        <div class="drink-col drink-col-y"><div class="drink-col-label">⚠️ 조건부 허용</div><div class="drink-col-items">위스키·브랜디·진·보드카·럼·테킬라·당 없는 증류식 소주<br><br>드라이 레드 와인 (하루 1잔 150ml)<br><br>드라이 화이트 와인 (전당 ≤1g/100ml)</div></div>
+        <div class="drink-col drink-col-r"><div class="drink-col-label">❌ 절대 금지</div><div class="drink-col-items">맥주·막걸리·청주·전통주<br><br>복분자주·매실주·스위트 와인<br><br>모히토·칵테일·리큐르·달콤한 RTD 캔 (스미노프·새로 등)</div></div>
+      </div>
+      <ul class="plain" style="padding: 10px 18px 16px;">
+        <li>술 자체보다 <strong>고탄수화물 안주가 더 위험</strong> — 안주는 치즈·견과류·육포</li>
+        <li>알코올 이뇨 작용 → <strong>전해질 불균형</strong> — 물 병행 필수</li>
+        <li>'소량만, 가끔씩' 원칙</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /page-area -->
+
+<!-- 바텀 탭바 -->
+<nav class="tab-bar">
+  <button class="tab-item active" onclick="showTab('schedule', this)">
+    <span class="tab-icon">📅</span>
+    <span class="tab-label">스케줄</span>
+  </button>
+  <button class="tab-item" onclick="showTab('diet', this)">
+    <span class="tab-icon">🥗</span>
+    <span class="tab-label">식단</span>
+  </button>
+  <button class="tab-item" onclick="showTab('etc', this)">
+    <span class="tab-icon">⋯</span>
+    <span class="tab-label">기타</span>
+  </button>
+</nav>
+</div><!-- /app -->
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-section').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  document.getElementById('scroll-area').scrollTop = 0;
+}
+
+function showSub(id) {
+  document.querySelectorAll('.subtab-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('sub-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.getElementById('scroll-area').scrollTop = 0;
+}
+
+function toggleFg(btn) {
+  const body = btn.nextElementSibling;
+  const arrow = btn.querySelector('.fg-arrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function toggleEtc(btn) {
+  const body = btn.nextElementSibling;
+  const arrow = btn.querySelector('.fg-arrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function toggleSx(btn) {
+  const body = btn.nextElementSibling;
+  const arrow = btn.querySelector('.fg-arrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+</script>
+</body>
+</html>
