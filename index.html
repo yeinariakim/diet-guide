@@ -518,28 +518,17 @@ body::after {
 }
 .day-card {
   flex: 1;
-  background: var(--green);
+  background: var(--surface);
   border-radius: 16px;
-  padding: 16px;
+  padding: 14px 16px;
   text-align: center;
 }
 .day-card-label {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(255,255,255,0.65);
+  color: var(--text-3);
   margin-bottom: 6px;
   letter-spacing: 0.3px;
-}
-.day-card-num {
-  font-size: 34px;
-  font-weight: 700;
-  color: white;
-  line-height: 1;
-  margin-bottom: 5px;
-}
-.day-card-sub {
-  font-size: 12px;
-  color: rgba(255,255,255,0.75);
 }
 ul.plain li { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 5px; }
 ul.plain li strong { color: var(--text-1); }
@@ -1087,13 +1076,11 @@ function initDayCounter() {
       <div style="display:flex;gap:10px;width:100%;">
         <div class="day-card">
           <div class="day-card-label">다이어트</div>
-          <div class="day-card-num" style="font-size:28px;font-weight:600;">D+${dayNum}</div>
-          <div class="day-card-sub">${dayNum}일째 진행 중</div>
+          <div style="font-size:22px;font-weight:600;color:var(--green);line-height:1.2;">D+${dayNum}</div>
         </div>
         <div class="day-card">
           <div class="day-card-label">남은 기간</div>
-          <div class="day-card-num" style="font-size:28px;font-weight:600;">D-${remaining}</div>
-          <div class="day-card-sub">56일 중 ${dayNum}일 완료</div>
+          <div style="font-size:22px;font-weight:600;color:var(--green);line-height:1.2;">D-${remaining}</div>
         </div>
       </div>
       <div style="background:white;border-radius:16px;padding:14px 16px;margin-top:10px;width:100%;">
