@@ -54,7 +54,7 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 4px);
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom));
 }
 
 /* ── 페이지 헤더 ── */
@@ -1034,8 +1034,8 @@ ul.plain li strong { color: var(--text-1); }
 <script>
 // 날짜 카운터
 function initDayCounter() {
-  const start = new Date('2026-09-05');
-  const end = new Date('2026-10-30');
+  const start = new Date(2026, 8, 5); // 9월 5일 (로컬 시간)
+  const end = new Date(2026, 9, 30); // 10월 30일
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const msPerDay = 1000 * 60 * 60 * 24;
