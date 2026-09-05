@@ -6,6 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="식단 가이드">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232E6B4F'/><text y='78' x='8' font-size='78'>✨</text></svg>">
 <title>식단 가이드</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css">
 <style>
@@ -53,7 +54,7 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 4px);
 }
 
 /* ── 페이지 헤더 ── */
@@ -506,28 +507,28 @@ html, body {
 }
 .day-card {
   flex: 1;
-  background: var(--surface);
-  border-radius: 14px;
-  padding: 14px 16px;
+  background: var(--green);
+  border-radius: 16px;
+  padding: 16px;
   text-align: center;
 }
 .day-card-label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-3);
+  color: rgba(255,255,255,0.65);
   margin-bottom: 6px;
   letter-spacing: 0.3px;
 }
 .day-card-num {
-  font-size: 32px;
+  font-size: 34px;
   font-weight: 700;
-  color: var(--green);
+  color: white;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 .day-card-sub {
   font-size: 12px;
-  color: var(--text-2);
+  color: rgba(255,255,255,0.75);
 }
 ul.plain li { font-size: 13.5px; color: var(--text-2); line-height: 1.6; margin-bottom: 5px; }
 ul.plain li strong { color: var(--text-1); }
